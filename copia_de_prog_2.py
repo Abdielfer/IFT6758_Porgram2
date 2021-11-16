@@ -220,7 +220,7 @@ def q5(df=drug_trials, variable='life_expectancy', class_name='drug_type', num_r
     Your solution / Votre solution
     """
 
-    return lower_limit, higher_limit
+    #return lower_limit, higher_limit
 
 q5()
 
@@ -234,16 +234,32 @@ Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de sol
 class Prog2:
   
   def q1(self, df=housing_raw):
-    return q1(df)
+
+    #return q1(df)
   
   def q2(self, df = cluster_data, k_values=[2,3,4,5]):
-    return q2(cluster_data, k_values)
+    #return q2(cluster_data, k_values)
   
   def q3(self, df = housing_processed, alpha=0.1, target='SalePrice'):
-    return q3(df, alpha, target)
+    #return q3(df, alpha, target)
 
   def q4(self, df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
-    return q4(df, alphas, k, target)
+    #return q4(df, alphas, k, target)
 
   def q5(self, df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
-    return q5(df, variable, class_name, num_repetitions, alpha, random_state)
+    #return q5(df, variable, class_name, num_repetitions, alpha, random_state)
+
+
+
+
+   ###  TEstting ...To delete befoe submitting
+
+test = Prog2()
+q1 = test.q1()
+print(q1)
+q2 = test.q2()
+q3 = test.q3()
+q4 = test.q4()
+q5 = test.q5()
+
+
