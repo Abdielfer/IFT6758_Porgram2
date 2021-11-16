@@ -98,6 +98,7 @@ def q1(df=housing_raw):
   """
   Your solution / Votre solution
   """
+  "Testing  JAKBSD;CJNAS;DC "
   df = None             
   return df
 
