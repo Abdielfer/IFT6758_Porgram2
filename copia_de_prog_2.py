@@ -53,19 +53,16 @@ from sklearn import metrics
 
 housing_raw = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/housing_raw.csv')
 
-cluster_data = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/cluster-data.csv')
+# cluster_data = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/cluster-data.csv')
 
-housing_processed = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/housing_processed.csv')
+# housing_processed = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/housing_processed.csv')
 
-drug_trials = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/drug_trials.csv')
+# drug_trials = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/drug_trials.csv')
 
 """[4 points]
 
 ## Q1. Given a dataframe with housing data, perform the following preprocessing/feature engineering steps:
 
-*   Remove the `Id` column.
-*   Remove all non-numerical columns from the dataframe except `Neighborhood`.
-*   
     If a column has >= 60% NaN values, remove the columns from the dataset.
 
     Otherwise, for numerical columns, impute those columns with the statistical median of the particular column.
@@ -82,14 +79,23 @@ def q1(df=housing_raw):
   Your solution / Votre solution
   """
   df = housing_raw
-  neighbours = df.drop['Neighborhood']
-  colum = df.columns()
+  neighbours = df['Neighborhood']
+  df = df.drop(['Neighborhood'],axis=1)
+  df = df.drop(['Id'],axis=1)
+  df = df._get_numeric_data()
+  colum = df.columns
+  min, max = 0, 0
+  nanCount = 0
+  n = df.shape[1]
   for i in colum:
-    if datatype(df.iloc[i]) == 'int':
-      pass
-    else:
-      df = df.drop[i]
-   
+     nanCount = df[i].isna().sum()
+     if nanCount > 0: 
+      if np.abs(nanCount/n)*100 >= 60: 
+        df = df.drop([i],axis=1)
+      else:
+          mean = df[i].mean()
+          df[i].fillna(mean, inplace=True)
+
   return df
 
 q1()
@@ -242,8 +248,7 @@ Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de sol
 
    ###  TEstting ...To delete befoe submitting
 
-
-# q1 = q1()
+q1 = q1()
 # print(q1)
 # q2 = q2()
 # q3 = q3()
