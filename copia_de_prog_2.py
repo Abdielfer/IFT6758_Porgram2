@@ -75,31 +75,21 @@ drug_trials = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main
 *   Use the `DictVectorizer` to encode Neighborhood into one-hot feature representations and name these additional columns as `f0`,`f1`,`f2`..etc. to replace the `Neighborhood` column.
 
 * Return the final dataframe.
-
----
-
-## Q1. Étant donné un dataframe avec des données de logement, effectuez les étapes de prétraitement/d'ingénierie des caractéristiques suivantes :
-
-
-* Supprimez la colonne `Id`.
-* Supprimez toutes les colonnes non numériques de la base de données, à l'exception de `Neighborhood`.
-*     Si une colonne a >= 60% valeurs NaN, supprimez les colonnes de l'ensemble de données.
-
-     Sinon, pour les colonnes numériques, imputez à ces colonnes avec la médiane statistique de la colonne particulière.
-
-* Appliquez un Min Max Scaler à toutes les caractéristiques numériques de la base de données, à l'exception de `Neighborhood`.
-
-* Utilisez le `DictVectorizer` pour encoder Neighborhood en représentations one-hot de caractéristiques  et nommez ces colonnes supplémentaires comme `f0`,`f1`,`f2`..etc. pour remplacer la colonne `Neighborhood`.
-
-* Retournez le dataframe finale.
 """
 
 def q1(df=housing_raw):
   """
   Your solution / Votre solution
   """
-  "Testing  JAKBSD;CJNAS;DC "
-  df = None             
+  df = housing_raw
+  neighbours = df.drop['Neighborhood']
+  colum = df.columns()
+  for i in colum:
+    if datatype(df.iloc[i]) == 'int':
+      pass
+    else:
+      df = df.drop[i]
+   
   return df
 
 q1()
@@ -108,8 +98,6 @@ q1()
 
 ## Q2. Given a dataframe with multiple features `f0`, `f1`, ..., apply KMeans for the given values of `k` and return the value of `k` with the **least** `inertia` of the clustering and this least intertia value.
 
-
----
 
 ## Q2. Étant donné un dataframe avec plusieurs caractéristiques `f0`, `f1`, ..., appliquez KMeans pour les valeurs données de `k` et retournez la valeur de `k` avec la **plus petite** `inertia` du clustering et cette plus petite valeur d'intertie.
 """
@@ -231,35 +219,35 @@ q5()
 Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de solution à remettre sur Gradescope.
 """
 
-class Prog2:
+# class Prog2:
   
-  def q1(self, df=housing_raw):
+#   def q1(self, df=housing_raw):
 
-    #return q1(df)
+#     return q1(df)
   
-  def q2(self, df = cluster_data, k_values=[2,3,4,5]):
-    #return q2(cluster_data, k_values)
+#   def q2(self, df = cluster_data, k_values=[2,3,4,5]):
+#     return q2(cluster_data, k_values)
   
-  def q3(self, df = housing_processed, alpha=0.1, target='SalePrice'):
-    #return q3(df, alpha, target)
+#   def q3(self, df = housing_processed, alpha=0.1, target='SalePrice'):
+#     return q3(df, alpha, target)
 
-  def q4(self, df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
-    #return q4(df, alphas, k, target)
+#   def q4(self, df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
+#     return q4(df, alphas, k, target)
 
-  def q5(self, df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
-    #return q5(df, variable, class_name, num_repetitions, alpha, random_state)
+#   def q5(self, df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
+#     return q5(df, variable, class_name, num_repetitions, alpha, random_state)
 
 
 
 
    ###  TEstting ...To delete befoe submitting
 
-test = Prog2()
-q1 = test.q1()
-print(q1)
-q2 = test.q2()
-q3 = test.q3()
-q4 = test.q4()
-q5 = test.q5()
+
+# q1 = q1()
+# print(q1)
+# q2 = q2()
+# q3 = q3()
+# q4 = q4()
+# q5 = q5()
 
 
