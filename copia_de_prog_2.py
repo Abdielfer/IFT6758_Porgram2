@@ -44,10 +44,10 @@ from sklearn.feature_extraction import DictVectorizer
 
 from sklearn import feature_extraction 
 from sklearn import feature_selection 
+from sklearn import cluster
 
 from sklearn import linear_model
 from sklearn.linear_model import Lasso
-from sklearn import cluster
 from sklearn.feature_selection import SelectFromModel
 
 from sklearn import model_selection
@@ -129,16 +129,23 @@ def q1(df=housing_raw):
 def q2(df = cluster_data, k_values=[2,3,4,5]):
   """
   Your solution / Votre solution
+  Ref: 
+  https://towardsdatascience.com/k-means-clustering-from-a-to-z-f6242a314e9a
+  https://blog.cambridgespark.com/how-to-determine-the-optimal-number-of-clusters-for-k-means-clustering-14f27070048f
   """
   best_k = None
-  best_inertia = None
-
-  feature_selection.SelectFromModel
-
+  best_inertia = float('inf')
+  for k in k_values:
+      model = cluster.KMeans(n_clusters=k)
+      model.fit(df)
+      inercy = model.inertia_
+      if inercy < best_inertia:
+        best_inertia = inercy
+        best_k = k
 
   return best_k, best_inertia
 
-#q2()
+q2()
 
 
 """[4 points]
@@ -160,17 +167,18 @@ def q3(df = housing_processed, alpha=0.1, target='SalePrice'):
   """
   Your solution / Votre solution
   """
-  y = np.array(df[target])
-  x = df.drop([target],axis=1)
-  x = np.array(x)
+  y = df[target]
+  X = df.drop([target],axis=1)
+  # X = np.array(X)
   model = Lasso(alpha=alpha)
   selector = SelectFromModel(estimator=model).fit(X, y)
-  transformed_X = selector.transform(X)
-  ans = transformed_X.columns
+  colNames = selector.feature_names_in_
+  # transformed_X = selector.transform(X)
+  # ans = pd.DataFrame(transformed_X.columns)
+  ans = set(colNames)
+  return ans
 
-  return set([ans])
-
-q3()
+# q3()
 
 '''
 """[4 points]
@@ -278,10 +286,9 @@ Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de sol
 
    ###  TEstting ...To delete befoe submitting
 '''
-q1 = q1()
+# q1 = q1()
 # print(q1)
 # q2 = q2()
-# q3 = q3()
 # q4 = q4()
 # q5 = q5()
 
