@@ -46,7 +46,9 @@ from sklearn import feature_extraction
 from sklearn import feature_selection 
 
 from sklearn import linear_model
+from sklearn.linear_model import Lasso
 from sklearn import cluster
+from sklearn.feature_selection import SelectFromModel
 
 from sklearn import model_selection
 from sklearn import metrics
@@ -55,11 +57,11 @@ from sklearn import metrics
 
 housing_raw = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/housing_raw.csv')
 
-# cluster_data = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/cluster-data.csv')
+cluster_data = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/cluster-data.csv')
 
-# housing_processed = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/housing_processed.csv')
+housing_processed = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/housing_processed.csv')
 
-# drug_trials = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/drug_trials.csv')
+drug_trials = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/drug_trials.csv')
 
 """[4 points]
 
@@ -77,7 +79,6 @@ def q1(df=housing_raw):
   Your solution / Votre solution
   """
   df = housing_raw
-  
   ## dicVectorizer  
   neighbours = pd.DataFrame()
   neighbours = df[['Neighborhood']]
@@ -108,16 +109,11 @@ def q1(df=housing_raw):
   
   ##  Min Max
   minMax = MinMaxScaler()
-
-  #pd.DataFrame(dfTest[col])),columns=[col]
-  #minMax.fit(df)
   dfColNames = df.columns
   df[dfColNames] = pd.DataFrame(minMax.fit_transform(df[dfColNames]))
   
-  # DF reconstruction ...re-add 'neighborhood'
+  # DF reconstruction ...add 'neighborhood one-hot encoded'
   df[colNames] = neighborhood
-  print(df.head)
-
   return  df
 
 
@@ -129,7 +125,7 @@ def q1(df=housing_raw):
 
 ## Q2. Étant donné un dataframe avec plusieurs caractéristiques `f0`, `f1`, ..., appliquez KMeans pour les valeurs données de `k` et retournez la valeur de `k` avec la **plus petite** `inertia` du clustering et cette plus petite valeur d'intertie.
 """
-'''
+
 def q2(df = cluster_data, k_values=[2,3,4,5]):
   """
   Your solution / Votre solution
@@ -137,9 +133,13 @@ def q2(df = cluster_data, k_values=[2,3,4,5]):
   best_k = None
   best_inertia = None
 
+  feature_selection.SelectFromModel
+
+
   return best_k, best_inertia
 
-q2()
+#q2()
+
 
 """[4 points]
 
@@ -160,11 +160,19 @@ def q3(df = housing_processed, alpha=0.1, target='SalePrice'):
   """
   Your solution / Votre solution
   """
-  
-  return set()
+  y = np.array(df[target])
+  x = df.drop([target],axis=1)
+  x = np.array(x)
+  model = Lasso(alpha=alpha)
+  selector = SelectFromModel(estimator=model).fit(X, y)
+  transformed_X = selector.transform(X)
+  ans = transformed_X.columns
+
+  return set([ans])
 
 q3()
 
+'''
 """[4 points]
 
 ##Q4. Given a dataframe with housing data to predict the `SalePrice` value, return the average value of the validation mean squared error and `alpha` value of the **best** `Ridge` model fit in a $k$-fold Cross Validation setting based on a given set of `alpha` values (of the `Ridge` model). 
