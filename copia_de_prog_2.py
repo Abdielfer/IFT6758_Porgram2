@@ -39,6 +39,8 @@ import numpy as np
 import pandas as pd
 
 from sklearn import preprocessing
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.feature_extraction import DictVectorizer
 
 from sklearn import feature_extraction 
 from sklearn import feature_selection 
@@ -62,11 +64,7 @@ housing_raw = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main
 """[4 points]
 
 ## Q1. Given a dataframe with housing data, perform the following preprocessing/feature engineering steps:
-
-    If a column has >= 60% NaN values, remove the columns from the dataset.
-
-    Otherwise, for numerical columns, impute those columns with the statistical median of the particular column.
-
+  
 *   Apply a Min Max Scaler to all the numerical features in the dataframe except `Neighborhood`.
 
 *   Use the `DictVectorizer` to encode Neighborhood into one-hot feature representations and name these additional columns as `f0`,`f1`,`f2`..etc. to replace the `Neighborhood` column.
@@ -79,12 +77,24 @@ def q1(df=housing_raw):
   Your solution / Votre solution
   """
   df = housing_raw
-  neighbours = df['Neighborhood']
+  
+  ## dicVectorizer  
+  neighbours = pd.DataFrame()
+  neighbours = df[['Neighborhood']]
+  neighboursDict = neighbours.to_dict(orient='records')
+  vectorizer = feature_extraction.DictVectorizer(sparse=False, sort = False) # no sparse matrix
+  neighboursOneHot = vectorizer.fit_transform(neighboursDict) 
+  classCont = df["Neighborhood"].nunique()
+  colNames = []
+  for i in range(classCont) :
+    colNames.append("f"+str(i))
+  neighborhood = pd.DataFrame(np.squeeze(neighboursOneHot), columns=colNames)
+
+  # DF Preprocessing 
   df = df.drop(['Neighborhood'],axis=1)
   df = df.drop(['Id'],axis=1)
   df = df._get_numeric_data()
   colum = df.columns
-  min, max = 0, 0
   nanCount = 0
   n = df.shape[1]
   for i in colum:
@@ -95,10 +105,22 @@ def q1(df=housing_raw):
       else:
           mean = df[i].mean()
           df[i].fillna(mean, inplace=True)
+  
+  ##  Min Max
+  minMax = MinMaxScaler()
 
-  return df
+  #pd.DataFrame(dfTest[col])),columns=[col]
+  #minMax.fit(df)
+  dfColNames = df.columns
+  df[dfColNames] = pd.DataFrame(minMax.fit_transform(df[dfColNames]))
+  
+  # DF reconstruction ...re-add 'neighborhood'
+  df[colNames] = neighborhood
+  print(df.head)
 
-q1()
+  return  df
+
+
 
 """[4 points]
 
@@ -107,7 +129,7 @@ q1()
 
 ## Q2. Étant donné un dataframe avec plusieurs caractéristiques `f0`, `f1`, ..., appliquez KMeans pour les valeurs données de `k` et retournez la valeur de `k` avec la **plus petite** `inertia` du clustering et cette plus petite valeur d'intertie.
 """
-
+'''
 def q2(df = cluster_data, k_values=[2,3,4,5]):
   """
   Your solution / Votre solution
@@ -247,7 +269,7 @@ Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de sol
 
 
    ###  TEstting ...To delete befoe submitting
-
+'''
 q1 = q1()
 # print(q1)
 # q2 = q2()
