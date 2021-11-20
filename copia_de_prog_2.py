@@ -46,8 +46,10 @@ from sklearn import feature_extraction
 from sklearn import feature_selection 
 from sklearn import cluster
 
+
 from sklearn import linear_model
 from sklearn.linear_model import Lasso
+from sklearn.linear_model import RidgeCV
 from sklearn.feature_selection import SelectFromModel
 
 from sklearn import model_selection
@@ -145,7 +147,7 @@ def q2(df = cluster_data, k_values=[2,3,4,5]):
 
   return best_k, best_inertia
 
-q2()
+#q2()
 
 
 """[4 points]
@@ -180,26 +182,27 @@ def q3(df = housing_processed, alpha=0.1, target='SalePrice'):
 
 # q3()
 
-'''
+
 """[4 points]
 
-##Q4. Given a dataframe with housing data to predict the `SalePrice` value, return the average value of the validation mean squared error and `alpha` value of the **best** `Ridge` model fit in a $k$-fold Cross Validation setting based on a given set of `alpha` values (of the `Ridge` model). 
+##Q4. Given a dataframe with housing data to predict the `SalePrice` value, 
+# return the average value of the validation mean squared error and `alpha` value 
+# of the **best** `Ridge` model fit in a $k$-fold Cross Validation setting based on a 
+# given set of `alpha` values (of the `Ridge` model). 
  
----
-
-##Q4. Étant donné un dataframe avec des données de logement pour prédire la valeur `SalePrice`, retournez la valeur moyenne de l'erreur quadratique moyenne de validation et la valeur `alpha` du **meilleur** modèle `Ridge` ajusté dans une validation croisée $k$-fold basé sur une liste de valeurs `alpha` (du modèle `Ridge`). 
 """
 
 def q4(df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
   """
   Your solution / Votre solution
   """
-  best_kfold_valid_mse = None 
-  best_alpha = None
-
+  y = df[target]
+  X = df.drop([target],axis=1) 
+  model =  RidgeCV(alphas=alphas,cv=k).fit(X, y)
+  best_kfold_valid_mse = model.score(X, y)
+  best_alpha = model.alpha_
   return best_kfold_valid_mse, best_alpha
 
-q4()
 
 """[4 points] 
 
@@ -292,4 +295,4 @@ Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de sol
 # q4 = q4()
 # q5 = q5()
 
-
+'''
