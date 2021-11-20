@@ -34,23 +34,16 @@ Ceci est important pour exécuter votre code!
 """
 
 # Imports / Importations
-
 import numpy as np
 import pandas as pd
 
 from sklearn import preprocessing
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.feature_extraction import DictVectorizer
 
 from sklearn import feature_extraction 
 from sklearn import feature_selection 
-from sklearn import cluster
-
 
 from sklearn import linear_model
-from sklearn.linear_model import Lasso
-from sklearn.linear_model import RidgeCV
-from sklearn.feature_selection import SelectFromModel
+from sklearn import cluster
 
 from sklearn import model_selection
 from sklearn import metrics
@@ -110,7 +103,7 @@ def q1(df=housing_raw):
           df[i].fillna(mean, inplace=True)
   
   ##  Min Max
-  minMax = MinMaxScaler()
+  minMax = preprocessing.MinMaxScaler()
   dfColNames = df.columns
   df[dfColNames] = pd.DataFrame(minMax.fit_transform(df[dfColNames]))
   
@@ -118,6 +111,7 @@ def q1(df=housing_raw):
   df[colNames] = neighborhood
   return  df
 
+q1()
 
 
 """[4 points]
@@ -147,7 +141,7 @@ def q2(df = cluster_data, k_values=[2,3,4,5]):
 
   return best_k, best_inertia
 
-#q2()
+q2()
 
 
 """[4 points]
@@ -172,15 +166,15 @@ def q3(df = housing_processed, alpha=0.1, target='SalePrice'):
   y = df[target]
   X = df.drop([target],axis=1)
   # X = np.array(X)
-  model = Lasso(alpha=alpha)
-  selector = SelectFromModel(estimator=model).fit(X, y)
+  model = linear_model.Lasso(alpha=alpha)
+  selector = feature_selection.SelectFromModel(estimator=model).fit(X, y)
   colNames = selector.feature_names_in_
   # transformed_X = selector.transform(X)
   # ans = pd.DataFrame(transformed_X.columns)
   ans = set(colNames)
   return ans
 
-# q3()
+q3()
 
 
 """[4 points]
@@ -200,11 +194,12 @@ def q4(df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice')
   """
   y = df[target]
   X = df.drop([target],axis=1) 
-  model =  RidgeCV(alphas=alphas,cv=k).fit(X, y)
+  model =  linear_model.RidgeCV(alphas=alphas,cv=k).fit(X, y)
   best_kfold_valid_mse = model.score(X, y) 
   best_alpha = model.alpha_
   return best_kfold_valid_mse, best_alpha
 
+q4()
 
 """[4 points] 
 
@@ -279,6 +274,7 @@ def q5(df=drug_trials, variable='life_expectancy', class_name='drug_type', num_r
 
     return min_lim, max_lim
 
+q5()
 
 
 """Packaging all the above functions into a class for the solution file to submit on Gradescope.
