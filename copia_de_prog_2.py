@@ -195,42 +195,53 @@ def q3(df = housing_processed, alpha=0.1, target='SalePrice'):
 def q4(df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
   """
   Your solution / Votre solution
+
+
   """
   y = df[target]
   X = df.drop([target],axis=1) 
   model =  RidgeCV(alphas=alphas,cv=k).fit(X, y)
-  best_kfold_valid_mse = model.score(X, y)
+  best_kfold_valid_mse = model.score(X, y) 
   best_alpha = model.alpha_
   return best_kfold_valid_mse, best_alpha
 
 
 """[4 points] 
 
-## Q5. Given a dataframe about results from a drug trial with two drugs (`drug_type` `0` and `1`) that aim to improve longevity (`life_expectancy`), use bootstrap estimation to find the confidence interval of difference in mean value of `life_expectancy` of each of these two drugs. 
+## Q5. 
+# Given a dataframe about results from a drug trial with two drugs (`drug_type` `0` and `1`) that aim 
+# to improve longevity (`life_expectancy`), use bootstrap estimation to find the confidence interval of difference 
+# in mean value of `life_expectancy` of each of these two drugs. 
 
-* Use the pandas [`Dataframe.sample`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html) function to sample with replacement, with the bootstrap sample size as the length of the source dataframe and random state passed in the function argument.
+* Use the pandas [`Dataframe.sample`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html) 
+function to sample with replacement, with the bootstrap sample size as the length of the source dataframe and random state
+ passed in the function argument.
 * Use `drug_type 0` - `drug_type 1`order for the difference.
 
 **Arguments**
 
 * `df` : a dataframe that includes observations of the two sample classes
 * `variable` : the column name of the column that includes observations of the variable of interest  
-* `class_name` : the column name of the column that includes group assignment (This column should contain two different group names/values)
+* `class_name` : the column name of the column that includes group assignment (This column should contain two 
+different group names/values)
 * `num_repetitions`: number of times you want the bootstrapping to repeat. Default is 1000.
 * `alpha` : likelihood that the true population parameter lies outside the confidence interval. Default is 0.05. 
 * `random_state` : enable users to set their own random_state for the sampling, default is `123`. 
 
-
 **Return**
-
-* The lower limit and upper limit of the confidence interval for the difference in mean `life_expectancy` between the two drug types corresponding to the given `alpha`.
+* The lower limit and upper limit of the confidence interval for the difference in mean `life_expectancy` between 
+the two drug types corresponding to the given `alpha`.
 
 
 ---
 
-## Q5. Étant donné un dataframe sur les résultats d'un essai de médicament avec deux médicaments (`drug_type` `0` et `1`) qui visent à améliorer la longévité (`life_expectancy`/espérance de vie), utilisez l'estimation bootstrap de la différence pour trouver l'intervalle de confiance de la valeur moyenne de la différence de `life_expectancy` de chacun de ces deux médicaments.
+## Q5. Étant donné un dataframe sur les résultats d'un essai de médicament avec deux médicaments (`drug_type` `0` et `1`) qui visent à améliorer la 
+# longévité (`life_expectancy`/espérance de vie), utilisez l'estimation bootstrap de la différence pour trouver l'intervalle de confiance de la valeur 
+# moyenne de la différence de `life_expectancy` de chacun de ces deux médicaments.
 
-* Utilisez la fonction pandas [`Dataframe.sample`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html) pour échantillonner avec remplacement, avec la taille de l'échantillon bootstrap comme longueur du dataframe source et l'état aléatoire transmis dans l'argument de la fonction.
+* Utilisez la fonction pandas [`Dataframe.sample`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html) pour 
+échantillonner avec remplacement, avec la taille de l'échantillon bootstrap comme longueur du dataframe source et l'état aléatoire transmis dans
+ l'argument de la fonction.
 * Utilisez l'ordre `drug_type 0` - `drug_type 1` pour la différence.
 
 **Arguments**
@@ -245,7 +256,8 @@ def q4(df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice')
 
 **Retour**
 
-* La limite inférieure (lower limit) et la limite supérieure (upper limit) de l'intervalle de confiance pour la différence de `life_expectancy` (espérance de vie) moyenne entre les deux types de médicaments (drugs) correspondant à l'`alpha` donné.
+* La limite inférieure (lower limit) et la limite supérieure (upper limit) de l'intervalle de confiance pour la différence de `life_expectancy` (espérance de vie)
+ moyenne entre les deux types de médicaments (drugs) correspondant à l'`alpha` donné.
 
 
 """
@@ -254,10 +266,20 @@ def q5(df=drug_trials, variable='life_expectancy', class_name='drug_type', num_r
     """
     Your solution / Votre solution
     """
+    diff = np.zeros(num_repetitions)
+    alphas = [(alpha/2)*100,(1 - alpha/2)*100]
+    min_lim, max_lim = 0,0
+    for i in range(num_repetitions):
+      ith_resample = df.sample(n=df.shape[0],replace=True, random_state = random_state)
+      drug_A = ith_resample.loc[ith_resample[class_name]==0]
+      drug_B = ith_resample.loc[ith_resample[class_name]==1]
+      diff[i] = drug_A[variable].mean() - drug_B[variable].mean()
 
-    #return lower_limit, higher_limit
+    min_lim, max_lim = np.percentile(diff, alphas)
 
-q5()
+    return min_lim, max_lim
+
+
 
 """Packaging all the above functions into a class for the solution file to submit on Gradescope.
 
@@ -266,33 +288,21 @@ q5()
 Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de solution à remettre sur Gradescope.
 """
 
-# class Prog2:
+class Prog2:
   
-#   def q1(self, df=housing_raw):
-
-#     return q1(df)
+  def q1(self, df=housing_raw):
+    return q1(df)
   
-#   def q2(self, df = cluster_data, k_values=[2,3,4,5]):
-#     return q2(cluster_data, k_values)
+  def q2(self, df = cluster_data, k_values=[2,3,4,5]):
+    return q2(cluster_data, k_values)
   
-#   def q3(self, df = housing_processed, alpha=0.1, target='SalePrice'):
-#     return q3(df, alpha, target)
+  def q3(self, df = housing_processed, alpha=0.1, target='SalePrice'):
+    return q3(df, alpha, target)
 
-#   def q4(self, df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
-#     return q4(df, alphas, k, target)
+  def q4(self, df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
+    return q4(df, alphas, k, target)
 
-#   def q5(self, df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
-#     return q5(df, variable, class_name, num_repetitions, alpha, random_state)
-
-
+  def q5(self, df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
+    return q5(df, variable, class_name, num_repetitions, alpha, random_state)
 
 
-   ###  TEstting ...To delete befoe submitting
-'''
-# q1 = q1()
-# print(q1)
-# q2 = q2()
-# q4 = q4()
-# q5 = q5()
-
-'''
