@@ -58,247 +58,119 @@ housing_processed = pd.read_csv('https://raw.githubusercontent.com/ift-6758/file
 
 drug_trials = pd.read_csv('https://raw.githubusercontent.com/ift-6758/files/main/drug_trials.csv')
 
-"""[4 points]
-
-## Q1. Given a dataframe with housing data, perform the following preprocessing/feature engineering steps:
-  
-*   Apply a Min Max Scaler to all the numerical features in the dataframe except `Neighborhood`.
-
-*   Use the `DictVectorizer` to encode Neighborhood into one-hot feature representations and name these additional columns as `f0`,`f1`,`f2`..etc. to replace the `Neighborhood` column.
-
-* Return the final dataframe.
-"""
-
-def q1(df=housing_raw):
-  """
-  Your solution / Votre solution
-  """
-  df = housing_raw
-  ## dicVectorizer  
-  neighbours = pd.DataFrame()
-  neighbours = df[['Neighborhood']]
-  neighboursDict = neighbours.to_dict(orient='records')
-  vectorizer = feature_extraction.DictVectorizer(sparse=False, sort = False) # no sparse matrix
-  neighboursOneHot = vectorizer.fit_transform(neighboursDict) 
-  classCont = df["Neighborhood"].nunique()
-  colNames = []
-  for i in range(classCont) :
-    colNames.append("f"+str(i))
-  neighborhood = pd.DataFrame(np.squeeze(neighboursOneHot), columns=colNames)
-
-  # DF Preprocessing 
-  df = df.drop(['Neighborhood'],axis=1)
-  df = df.drop(['Id'],axis=1)
-  df = df._get_numeric_data()
-  colum = df.columns
-  nanCount = 0
-  n = df.shape[1]
-  for i in colum:
-     nanCount = df[i].isna().sum()
-     if nanCount > 0: 
-      if np.abs(nanCount/n)*100 >= 60: 
-        df = df.drop([i],axis=1)
-      else:
-          mean = df[i].mean()
-          df[i].fillna(mean, inplace=True)
-  
-  ##  Min Max
-  minMax = preprocessing.MinMaxScaler()
-  dfColNames = df.columns
-  df[dfColNames] = pd.DataFrame(minMax.fit_transform(df[dfColNames]))
-  
-  # DF reconstruction ...add 'neighborhood one-hot encoded'
-  df[colNames] = neighborhood
-  return  df
-
-q1()
-
-
-"""[4 points]
-
-## Q2. Given a dataframe with multiple features `f0`, `f1`, ..., apply KMeans for the given values of `k` and return the value of `k` with the **least** `inertia` of the clustering and this least intertia value.
-
-
-## Q2. Étant donné un dataframe avec plusieurs caractéristiques `f0`, `f1`, ..., appliquez KMeans pour les valeurs données de `k` et retournez la valeur de `k` avec la **plus petite** `inertia` du clustering et cette plus petite valeur d'intertie.
-"""
-
-def q2(df = cluster_data, k_values=[2,3,4,5]):
-  """
-  Your solution / Votre solution
-  Ref: 
-  https://towardsdatascience.com/k-means-clustering-from-a-to-z-f6242a314e9a
-  https://blog.cambridgespark.com/how-to-determine-the-optimal-number-of-clusters-for-k-means-clustering-14f27070048f
-  """
-  best_k = None
-  best_inertia = float('inf')
-  for k in k_values:
-      model = cluster.KMeans(n_clusters=k)
-      model.fit(df)
-      inercy = model.inertia_
-      if inercy < best_inertia:
-        best_inertia = inercy
-        best_k = k
-
-  return best_k, best_inertia
-
-q2()
-
-
-"""[4 points]
-
-## Q3. Given a dataframe with housing data to predict the `SalePrice` value, return the best features (NOT `SalePrice`) using Lasso feature selection method. Use [`Lasso`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html?highlight=lasso#sklearn.linear_model.Lasso) and [`SelectFromModel`](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) to achieve this.
-
-* Input  : `df` - dataframe and `alpha` parameter for `Lasso`
-* Return : Set (`set()`) of columns with the feature names selected by Lasso
-
----
-
-## Q3. Étant donné un dataframe des données de logement pour prédire la valeur `SalePrice` (prix de vente), retournez les meilleures caractéristiques (PAS `SalePrice`) en utilisant la méthode de sélection de caractéristiques Lasso. Utilisez  [`Lasso`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html?highlight=lasso#sklearn.linear_model.Lasso) et [`SelectFromModel`](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) pour y parvenir.
-
-* Entrée : `df` - dataframe et paramètre `alpha` pour `Lasso`
-* Retour : Ensemble (`set()`) des colonnes avec les noms des caractéristiques sélectionnées par Lasso
-"""
-
-def q3(df = housing_processed, alpha=0.1, target='SalePrice'):
-  """
-  Your solution / Votre solution
-  """
-  y = df[target]
-  X = df.drop([target],axis=1)
-  # X = np.array(X)
-  model = linear_model.Lasso(alpha=alpha)
-  selector = feature_selection.SelectFromModel(estimator=model).fit(X, y)
-  colNames = selector.feature_names_in_
-  # transformed_X = selector.transform(X)
-  # ans = pd.DataFrame(transformed_X.columns)
-  ans = set(colNames)
-  return ans
-
-q3()
-
-
-"""[4 points]
-
-##Q4. Given a dataframe with housing data to predict the `SalePrice` value, 
-# return the average value of the validation mean squared error and `alpha` value 
-# of the **best** `Ridge` model fit in a $k$-fold Cross Validation setting based on a 
-# given set of `alpha` values (of the `Ridge` model). 
- 
-"""
-
-def q4(df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
-  """
-  Your solution / Votre solution
-
-
-  """
-  y = df[target]
-  X = df.drop([target],axis=1) 
-  model =  linear_model.RidgeCV(alphas=alphas,cv=k).fit(X, y)
-  best_kfold_valid_mse = model.score(X, y) 
-  best_alpha = model.alpha_
-  return best_kfold_valid_mse, best_alpha
-
-q4()
-
-"""[4 points] 
-
-## Q5. 
-# Given a dataframe about results from a drug trial with two drugs (`drug_type` `0` and `1`) that aim 
-# to improve longevity (`life_expectancy`), use bootstrap estimation to find the confidence interval of difference 
-# in mean value of `life_expectancy` of each of these two drugs. 
-
-* Use the pandas [`Dataframe.sample`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html) 
-function to sample with replacement, with the bootstrap sample size as the length of the source dataframe and random state
- passed in the function argument.
-* Use `drug_type 0` - `drug_type 1`order for the difference.
-
-**Arguments**
-
-* `df` : a dataframe that includes observations of the two sample classes
-* `variable` : the column name of the column that includes observations of the variable of interest  
-* `class_name` : the column name of the column that includes group assignment (This column should contain two 
-different group names/values)
-* `num_repetitions`: number of times you want the bootstrapping to repeat. Default is 1000.
-* `alpha` : likelihood that the true population parameter lies outside the confidence interval. Default is 0.05. 
-* `random_state` : enable users to set their own random_state for the sampling, default is `123`. 
-
-**Return**
-* The lower limit and upper limit of the confidence interval for the difference in mean `life_expectancy` between 
-the two drug types corresponding to the given `alpha`.
-
-
----
-
-## Q5. Étant donné un dataframe sur les résultats d'un essai de médicament avec deux médicaments (`drug_type` `0` et `1`) qui visent à améliorer la 
-# longévité (`life_expectancy`/espérance de vie), utilisez l'estimation bootstrap de la différence pour trouver l'intervalle de confiance de la valeur 
-# moyenne de la différence de `life_expectancy` de chacun de ces deux médicaments.
-
-* Utilisez la fonction pandas [`Dataframe.sample`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html) pour 
-échantillonner avec remplacement, avec la taille de l'échantillon bootstrap comme longueur du dataframe source et l'état aléatoire transmis dans
- l'argument de la fonction.
-* Utilisez l'ordre `drug_type 0` - `drug_type 1` pour la différence.
-
-**Arguments**
-
-* `df` : un dataframe qui comprend les observations des deux classes d'échantillons
-* `variable` : le nom de la colonne qui inclut les observations de la variable d'intérêt
-* `class_name` : le nom de colonne de la colonne qui inclut les balises de groupe (cette colonne doit contenir deux noms/valeurs de groupe différents)
-* `num_repetitions`: le nombre de fois qu'on souhaite que le bootstrapping se répète. La valeur par défaut est 1000.
-* `alpha` : probabilité que le véritable paramètre de population se situe en dehors de l'intervalle de confiance. La valeur par défaut est 0,05. 
-* `random_state` : pour permettre aux utilisateurs de définir leur propre état aléatoire , la valeur par défaut est `123`
-
-
-**Retour**
-
-* La limite inférieure (lower limit) et la limite supérieure (upper limit) de l'intervalle de confiance pour la différence de `life_expectancy` (espérance de vie)
- moyenne entre les deux types de médicaments (drugs) correspondant à l'`alpha` donné.
-
-
-"""
-
-def q5(df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
-    """
-    Your solution / Votre solution
-    """
-    diff = np.zeros(num_repetitions)
-    alphas = [(alpha/2)*100,(1 - alpha/2)*100]
-    min_lim, max_lim = 0,0
-    for i in range(num_repetitions):
-      ith_resample = df.sample(n=df.shape[0],replace=True, random_state = random_state)
-      drug_A = ith_resample.loc[ith_resample[class_name]==0]
-      drug_B = ith_resample.loc[ith_resample[class_name]==1]
-      diff[i] = drug_A[variable].mean() - drug_B[variable].mean()
-
-    min_lim, max_lim = np.percentile(diff, alphas)
-
-    return min_lim, max_lim
-
-q5()
-
-
-"""Packaging all the above functions into a class for the solution file to submit on Gradescope.
-
----
-
-Empaqueter toutes les fonctions ci-dessus dans une classe pour le fichier de solution à remettre sur Gradescope.
-"""
-
 class Prog2:
   
   def q1(self, df=housing_raw):
+    def q1(df=housing_raw):
+      """
+      Your solution / Votre solution
+      """
+      df = housing_raw
+      ## dicVectorizer  
+      neighbours = pd.DataFrame()
+      neighbours = df[['Neighborhood']]
+      neighboursDict = neighbours.to_dict(orient='records')
+      vectorizer = feature_extraction.DictVectorizer(sparse=False, sort = False) # no sparse matrix
+      neighboursOneHot = vectorizer.fit_transform(neighboursDict) 
+      classCont = df["Neighborhood"].nunique()
+      colNames = []
+      for i in range(classCont) :
+        colNames.append("f"+str(i))
+      neighborhood = pd.DataFrame(np.squeeze(neighboursOneHot), columns=colNames)
+
+      # DF Preprocessing 
+      df = df.drop(['Neighborhood'],axis=1)
+      df = df.drop(['Id'],axis=1)
+      df = df._get_numeric_data()
+      colum = df.columns
+      nanCount = 0
+      n = df.shape[1]
+      for i in colum:
+        nanCount = df[i].isna().sum()
+        if nanCount > 0: 
+          if np.abs(nanCount/n)*100 >= 60: 
+            df = df.drop([i],axis=1)
+          else:
+              mean = df[i].mean()
+              df[i].fillna(mean, inplace=True)
+      
+      ##  Min Max
+      minMax = preprocessing.MinMaxScaler()
+      dfColNames = df.columns
+      df[dfColNames] = pd.DataFrame(minMax.fit_transform(df[dfColNames]))
+      
+      # DF reconstruction ...add 'neighborhood one-hot encoded'
+      df[colNames] = neighborhood
+      return df
     return q1(df)
   
   def q2(self, df = cluster_data, k_values=[2,3,4,5]):
+    def q2(df = cluster_data, k_values=[2,3,4,5]):
+        """
+        Your solution / Votre solution
+        Ref: 
+        https://towardsdatascience.com/k-means-clustering-from-a-to-z-f6242a314e9a
+        https://blog.cambridgespark.com/how-to-determine-the-optimal-number-of-clusters-for-k-means-clustering-14f27070048f
+        """
+        best_k = None
+        best_inertia = float('inf')
+        for k in k_values:
+            model = cluster.KMeans(n_clusters=k)
+            model.fit(df)
+            inercy = model.inertia_
+            if inercy < best_inertia:
+              best_inertia = inercy
+              best_k = k
+
+        return best_k, best_inertia
     return q2(cluster_data, k_values)
   
   def q3(self, df = housing_processed, alpha=0.1, target='SalePrice'):
+    def q3(df = housing_processed, alpha=0.1, target='SalePrice'):
+      """
+      Your solution / Votre solution
+      """
+      y = df[target]
+      X = df.drop([target],axis=1)
+      # X = np.array(X)
+      model = linear_model.Lasso(alpha=alpha)
+      selector = feature_selection.SelectFromModel(estimator=model).fit(X, y)
+      colNames = selector.feature_names_in_
+      # transformed_X = selector.transform(X)
+      # ans = pd.DataFrame(transformed_X.columns)
+      ans = set(colNames)
+      return ans
     return q3(df, alpha, target)
 
   def q4(self, df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
+    def q4(df = housing_processed, alphas=[0.1,0.01,0.001], k=5, target='SalePrice'):
+      """
+      Your solution / Votre solution
+      """
+      y = df[target]
+      X = df.drop([target],axis=1) 
+      model =  linear_model.RidgeCV(alphas=alphas,cv=k).fit(X, y)
+      best_kfold_valid_mse = model.score(X, y) 
+      best_alpha = model.alpha_
+      return best_kfold_valid_mse, best_alpha
     return q4(df, alphas, k, target)
 
   def q5(self, df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
+    
+    def q5(df=drug_trials, variable='life_expectancy', class_name='drug_type', num_repetitions = 1000, alpha = 0.05, random_state=np.random.RandomState(seed=123)):
+      """
+      Your solution / Votre solution
+      """
+      diff = np.zeros(num_repetitions)
+      alphas = [(alpha/2)*100,(1 - alpha/2)*100]
+      min_lim, max_lim = 0,0
+      for i in range(num_repetitions):
+        ith_resample = df.sample(n=df.shape[0],replace=True, random_state = random_state)
+        drug_A = ith_resample.loc[ith_resample[class_name]==0]
+        drug_B = ith_resample.loc[ith_resample[class_name]==1]
+        diff[i] = drug_A[variable].mean() - drug_B[variable].mean()
+      min_lim, max_lim = np.percentile(diff, alphas)
+      return min_lim, max_lim
     return q5(df, variable, class_name, num_repetitions, alpha, random_state)
 
 
